@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaSpellCheck, FaSyncAlt, FaCheck, FaPencilAlt } from "react-icons/fa";
 import { SiGrammarly } from "react-icons/si";
 import { usePrivy } from "@privy-io/react-auth";
+import { API_BASE_URL } from "../config/api";
 
 const Editor = () => {
   const { getAccessToken } = usePrivy();
@@ -23,7 +24,7 @@ const Editor = () => {
   const rephraseSentence = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/analyze",
+        `${API_BASE_URL}/api/analyze`,
         { sentence: selectedSentence },
         { headers: { Authorization: `Bearer ${await getAccessToken()}` } }
       );
@@ -39,10 +40,9 @@ const Editor = () => {
 
   const checkSpelling = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/spellcheck",
-        { text }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/spellcheck`, {
+        text,
+      });
       setSpellCheckedText(response.data.correctedText);
     } catch (error) {
       console.error("Error checking spelling:", error);
@@ -53,10 +53,9 @@ const Editor = () => {
 
   const checkGrammar = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/grammarcheck",
-        { text }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/grammarcheck`, {
+        text,
+      });
       setGrammarCheckedText(response.data.correctedText);
     } catch (error) {
       console.error("Error checking grammar:", error);

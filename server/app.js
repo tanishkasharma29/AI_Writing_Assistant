@@ -9,7 +9,20 @@ const spellChecker = require("./routes/spellChecker");
 const app = express();
 const port = process.env.PORT || 8000;
 
-app.use(cors());
+// CORS configuration for production
+const corsOptions = {
+  origin: [
+    "http://localhost:5173", // Development
+    "http://localhost:3000", // Development alternative
+    "https://ai-writing-assistant-frontend.onrender.com", // Production frontend
+    process.env.CLIENT_URL, // Environment variable for custom domain
+  ].filter(Boolean), // Remove any undefined values
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json()); // for parsing application/json
 
 console.log("API Key:", process.env.OPENAI_API_KEY);
