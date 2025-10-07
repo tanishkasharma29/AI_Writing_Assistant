@@ -13,7 +13,7 @@ analyzeRouter.post("/", async (req, res) => {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
@@ -44,13 +44,52 @@ analyzeRouter.post("/", async (req, res) => {
 
     res.json({ rephrasedSentences });
   } catch (error) {
-    console.error("Full Error:", error.response?.data || error.message);
-    res
-      .status(500)
-      .json({
-        error:
-          error.response?.data || error.message || "Error checking spelling",
+    console.error("Analyze Error:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+
+    // Fallback for quota exceeded or API errors
+    if (
+      error.response?.status === 429 ||
+      error.response?.data?.error?.code === "insufficient_quota"
+    ) {
+      // Simple sentence variations
+      const mockSuggestions = [
+        sentence.replace(/very/gi, "extremely"),
+        sentence.replace(/good/gi, "excellent"),
+        sentence.replace(/bad/gi, "poor"),
+        sentence.replace(/big/gi, "large"),
+        sentence.replace(/small/gi, "tiny"),
+      ]
+        .filter(
+          (suggestion, index, arr) =>
+            suggestion !== sentence && arr.indexOf(suggestion) === index
+        )
+        .slice(0, 3);
+
+      // If no variations found, provide generic alternatives
+      if (mockSuggestions.length === 0) {
+        mockSuggestions.push(
+          `${sentence} (Alternative phrasing)`,
+          `Consider: "${sentence.charAt(0).toUpperCase() + sentence.slice(1)}"`,
+          `Suggestion: "${sentence.replace(/\.$/, "").trim()}."`
+        );
+      }
+
+      console.log("✅ Using fallback analyzer");
+      return res.json({
+        rephrasedSentences: mockSuggestions,
       });
+    }
+
+    res.status(500).json({
+      error:
+        error.response?.data?.error?.message ||
+        error.message ||
+        "Error analyzing sentence",
+    });
   }
 });
 

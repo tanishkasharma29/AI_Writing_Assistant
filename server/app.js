@@ -14,6 +14,14 @@ app.use(express.json()); // for parsing application/json
 
 console.log("API Key:", process.env.OPENAI_API_KEY);
 
+// Test route
+app.get("/api/test", (req, res) => {
+  res.json({
+    message: "Server is working!",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Routes
 app.use("/api/analyze", analyzeRouter);
 app.use("/api/grammarcheck", grammarCheck);

@@ -41,12 +41,13 @@ const Editor = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/spellcheck",
-        { text },
-        { headers: { Authorization: `Bearer ${await getAccessToken()}` } }
+        { text }
       );
       setSpellCheckedText(response.data.correctedText);
     } catch (error) {
       console.error("Error checking spelling:", error);
+      // Fallback - show original text with a message
+      setSpellCheckedText(text + "\n\n(Spell checker temporarily unavailable)");
     }
   };
 
@@ -59,6 +60,10 @@ const Editor = () => {
       setGrammarCheckedText(response.data.correctedText);
     } catch (error) {
       console.error("Error checking grammar:", error);
+      // Fallback - show original text with a message
+      setGrammarCheckedText(
+        text + "\n\n(Grammar checker temporarily unavailable)"
+      );
     }
   };
 
